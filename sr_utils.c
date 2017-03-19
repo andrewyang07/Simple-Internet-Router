@@ -15,7 +15,7 @@ uint16_t cksum (const void *_data, int len) {
   /* handle odd number of bytes in buffer */
   if (len > 0)
     sum += data[0] << 8;
-  
+
   /* fold 32-bit sum into 16-bit var */
   while (sum > 0xffff)
     sum = (sum >> 16) + (sum & 0xffff);
@@ -187,3 +187,68 @@ void print_hdrs(uint8_t *buf, uint32_t length) {
   }
 }
 
+sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
+    return (sr_ethernet_hdr_t *)packet;
+}
+
+sr_arp_hdr_t *get_arp_hdr(uint8_t *packet) {
+    return (sr_arp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
+}
+
+sr_ip_hdr_t *get_ip_hdr(uint8_t *packet) {
+    return (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
+}
+
+sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet) {
+    return (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+}
+
+
+/* Sanity check */
+
+uint8_t sanity_check_arp(unsigned int len) {
+  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
+      sizeof(sr_arp_hdr_t));
+  return under;
+}
+
+uint8_t sanity_check_ip(unsigned int len) {
+  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
+      sizeof(sr_ip_hdr_t));
+  return under;
+}
+
+uint8_t sanity_check_icmp(unsigned int len) {
+  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
+      sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t));
+  return under;
+}
+
+/* Returns 1 if equal */
+uint8_t check_ip_chksum(sr_ip_hdr_t *ip_hdr) {
+  uint16_t tmp_sum = ip_hdr->ip_sum;
+  ip_hdr->ip_sum = 0;
+
+  if(cksum(ip_hdr, sizeof(sr_ip_hdr_t)) == tmp_sum) {
+    ip_hdr->ip_sum = tmp_sum;
+    return 1;
+  }
+  else {
+    ip_hdr->ip_sum = tmp_sum;
+    return 0;
+  }
+}
+
+uint8_t check_icmp_chksum(uint16_t len, sr_icmp_hdr_t *icmp_hdr) {
+  uint16_t tmp_sum = icmp_hdr->icmp_sum;
+  icmp_hdr->icmp_sum = 0;
+
+  if(cksum((uint8_t *)icmp_hdr, ntohs(len) - sizeof(sr_ip_hdr_t)) == tmp_sum) {
+    icmp_hdr->icmp_sum = tmp_sum;
+    return 1;
+  }
+  else {
+    icmp_hdr->icmp_sum = tmp_sum;
+    return 0;
+  }
+}
