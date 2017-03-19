@@ -31,7 +31,7 @@
 /* See pseudo-code in sr_arpcache.h */
 void handle_arpreq(struct sr_instance* sr, struct sr_arpreq *req){
   /* TODO: Fill this in */
-  
+
 }
 
 /*---------------------------------------------------------------------
@@ -57,7 +57,7 @@ void sr_init(struct sr_instance* sr)
     pthread_t thread;
 
     pthread_create(&thread, &(sr->attr), sr_arpcache_timeout, sr);
-    
+
     /* TODO: (opt) Add initialization code here */
 
 } /* -- sr_init -- */
@@ -72,7 +72,7 @@ void sr_init(struct sr_instance* sr)
  * ethernet headers.
  *
  * Note: Both the packet buffer and the character's memory are handled
- * by sr_vns_comm.c that means do NOT free either (signified by "lent" comment).  
+ * by sr_vns_comm.c that means do NOT free either (signified by "lent" comment).
  * Make a copy of the
  * packet instead if you intend to keep it around beyond the scope of
  * the method call.
@@ -87,13 +87,42 @@ void sr_handlepacket(struct sr_instance* sr,
   /* REQUIRES */
   assert(sr);
   assert(packet);
+  /*assert(len); */
   assert(interface);
 
   printf("*** -> Received packet of length %d\n",len);
 
   /* TODO: Add forwarding logic here */
- 
-  
+  /* uint32_t sum = cksum (const void *_data, int len); */
+  struct sr_if*           iface = 0;
+  struct sr_ethernet_hdr* e_hdr = 0;
+  struct sr_arphdr*       a_hdr = 0;
+  struct if_tt*           arp_table = 0;
+  iface = sr_get_interface(sr, interface);
+  assert(iface);
+
+  e_hdr = (struct sr_ethernet_hdr*)packet;
+  a_hdr = (struct sr_arphdr*)(packet + sizeof(struct sr_ethernet_hdr));
+  /* printf("\nEthernet header is: %d, ARP header is: %d", e_hdr->ether_type,
+   a_hdr); */
+  uint16_t type_ = ntohs(e_hdr->ether_type);
+  switch(ntohs(e_hdr->ether_type)){
+    case ethertype_arp:
+      printf("\nARP, Packet type: %d, Arp type: %d",type_,ethertype_arp);
+      break;
+
+    case ethertype_ip:
+      printf("\nIP, Packet type: %d, IP type: %d",type_,ethertype_ip);
+      break;
+
+    default:
+      printf("\nUnknown Packet type. Packet dropped.");
+      printf("\nPacket type: %d,IP type: %d, ARP type: %d",type_,ethertype_ip,ethertype_arp);
+      break;
+  }
+
+
+
+
 
 }/* -- sr_handlepacket -- */
-
