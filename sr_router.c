@@ -79,10 +79,34 @@ void sr_init(struct sr_instance* sr)
  *
  *---------------------------------------------------------------------*/
 
+ /*
+ struct sr_instance
+ {
+     int  sockfd;    socket to server
+     char user[32];  user name
+     char host[32];  host name
+     char template[30];  template name if any
+     unsigned short topo_id;
+     struct sockaddr_in sr_addr;  address to server
+     struct sr_if* if_list;  list of interfaces
+     struct sr_rt* routing_table;  routing table
+     struct sr_arpcache cache;    ARP cache
+     pthread_attr_t attr;
+     FILE* logfile;
+ };
+ */
+
+
 void sr_handlepacket(struct sr_instance* sr,
         uint8_t * packet/* lent */,
         unsigned int len,
         char* interface/* lent */){
+
+
+  /*len = data length
+    uint8_t is 8bits integer
+    interface store which interface comes from
+  */
 
   /* REQUIRES */
   assert(sr);
@@ -94,7 +118,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   /* TODO: Add forwarding logic here */
   /* uint32_t sum = cksum (const void *_data, int len); */
-  struct sr_if*           iface = 0;
+  struct sr_if*
   struct sr_ethernet_hdr* e_hdr = 0;
   struct sr_arphdr*       a_hdr = 0;
   struct if_tt*           arp_table = 0;
