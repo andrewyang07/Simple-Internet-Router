@@ -118,9 +118,8 @@ void sr_handlepacket(struct sr_instance* sr,
 
   /* TODO: Add forwarding logic here */
   /* uint32_t sum = cksum (const void *_data, int len); */
-  struct sr_if*           iface = 0;
-  struct if_tt*           arp_table = 0;
-  iface = sr_get_interface(sr, interface);
+  /* struct if_tt*           arp_table = 0; */
+  struct sr_if *iface = sr_get_interface(sr, interface);
   assert(iface);
 
   sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
@@ -132,6 +131,12 @@ void sr_handlepacket(struct sr_instance* sr,
   switch(type_){
     case ethertype_arp:
       printf("\nARP, Packet type: %d, Arp type: %d",type_,ethertype_arp);
+      if(!sanity_check_arp(len)){
+        printf("\nSanity check failed, ARP packet dropped.");
+        break;
+      }
+      /*sr_handle_arp(sr, packet, len, iface); */
+
       break;
 
     case ethertype_ip:
