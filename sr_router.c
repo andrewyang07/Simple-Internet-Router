@@ -119,18 +119,17 @@ void sr_handlepacket(struct sr_instance* sr,
   /* TODO: Add forwarding logic here */
   /* uint32_t sum = cksum (const void *_data, int len); */
   struct sr_if*           iface = 0;
-  struct sr_ethernet_hdr* e_hdr = 0;
-  struct sr_arphdr*       a_hdr = 0;
   struct if_tt*           arp_table = 0;
   iface = sr_get_interface(sr, interface);
   assert(iface);
 
-  e_hdr = (struct sr_ethernet_hdr*)packet;
-  a_hdr = (struct sr_arphdr*)(packet + sizeof(struct sr_ethernet_hdr));
+  sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
+  sr_arp_hdr_t *a_hdr = get_arp_hdr(packet);
+  a_hdr = get_arp_hdr(packet);
   /* printf("\nEthernet header is: %d, ARP header is: %d", e_hdr->ether_type,
    a_hdr); */
   uint16_t type_ = ntohs(e_hdr->ether_type);
-  switch(ntohs(e_hdr->ether_type)){
+  switch(type_){
     case ethertype_arp:
       printf("\nARP, Packet type: %d, Arp type: %d",type_,ethertype_arp);
       break;

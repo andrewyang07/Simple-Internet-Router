@@ -206,26 +206,28 @@ sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet) {
 
 /* Sanity check */
 
-uint8_t sanity_check_arp(unsigned int len) {
-  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
-      sizeof(sr_arp_hdr_t));
-  return under;
+int sanity_check_arp(unsigned int len) {
+  if ( len >= (sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t)) )
+      return 1;
+  else
+      return 0;
 }
 
-uint8_t sanity_check_ip(unsigned int len) {
-  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
-      sizeof(sr_ip_hdr_t));
-  return under;
+int sanity_check_ip(unsigned int len) {
+  if ( len >= (sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t)) )
+      return 1;
+  else
+      return 0;
 }
 
-uint8_t sanity_check_icmp(unsigned int len) {
-  uint8_t under = len >= (sizeof(sr_ethernet_hdr_t) +
+int sanity_check_icmp(unsigned int len) {
+  int check = len >= (sizeof(sr_ethernet_hdr_t) +
       sizeof(sr_ip_hdr_t) + sizeof(sr_icmp_hdr_t));
-  return under;
+  return check;
 }
 
 /* Returns 1 if equal */
-uint8_t check_ip_chksum(sr_ip_hdr_t *ip_hdr) {
+int check_ip_chksum(sr_ip_hdr_t *ip_hdr) {
   uint16_t tmp_sum = ip_hdr->ip_sum;
   ip_hdr->ip_sum = 0;
 
@@ -239,7 +241,7 @@ uint8_t check_ip_chksum(sr_ip_hdr_t *ip_hdr) {
   }
 }
 
-uint8_t check_icmp_chksum(uint16_t len, sr_icmp_hdr_t *icmp_hdr) {
+int check_icmp_chksum(uint16_t len, sr_icmp_hdr_t *icmp_hdr) {
   uint16_t tmp_sum = icmp_hdr->icmp_sum;
   icmp_hdr->icmp_sum = 0;
 

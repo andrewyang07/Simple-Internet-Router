@@ -54,13 +54,13 @@ sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet);
 
 
 /* Sanity check */
-uint8_t sanity_check_arp(unsigned int len);
-uint8_t sanity_check_ip(unsigned int len);
-uint8_t sanity_check_icmp(unsigned int len);
+int sanity_check_arp(unsigned int len);
+int sanity_check_ip(unsigned int len);
+int sanity_check_icmp(unsigned int len);
 
 /* Checksum check */
-uint8_t check_ip_chksum(sr_ip_hdr_t *ip_hdr);
-uint8_t check_icmp_chksum(uint16_t ip_len, sr_icmp_hdr_t *icmp_hdr);
+int check_ip_chksum(sr_ip_hdr_t *ip_hdr);
+int check_icmp_chksum(uint16_t ip_len, sr_icmp_hdr_t *icmp_hdr);
 
 
 
