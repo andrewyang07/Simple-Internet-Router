@@ -118,7 +118,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   /* TODO: Add forwarding logic here */
   /* uint32_t sum = cksum (const void *_data, int len); */
-  struct sr_if*
+  struct sr_if*           iface = 0;
   struct sr_ethernet_hdr* e_hdr = 0;
   struct sr_arphdr*       a_hdr = 0;
   struct if_tt*           arp_table = 0;
