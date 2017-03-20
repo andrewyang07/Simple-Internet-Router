@@ -160,18 +160,27 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
       switch(ntohs(a_hdr->ar_op)) {
         case arp_op_request:
           printf("\nAn ARP request received!");
+          /*firstly should check the arp cache using sr_arpcache_lookup
+          */
+
           break;
         case arp_op_reply:
           printf("\nAn ARP reply received!");
+          /*should save into request queue*/
+
+          /*The ARP reply processing code should move entries from the ARP request
+          queue to the ARP cache:
+
+          # When servicing an arp reply that gives us an IP->MAC mapping
+          req = arpcache_insert(ip, mac)
+
+          if req:
+              send all packets on the req->packets linked list
+              arpreq_destroy(req)*/
+
           break;
         default:
           printf("\nCannot recognize this ARP frame");
           return;
       }
   }
-
-
-void handle_arpreq(struct sr_instance* , struct sr_arpreq* ){
-
-
-}
