@@ -3,7 +3,7 @@
 #include <string.h>
 #include "sr_protocol.h"
 #include "sr_utils.h"
-
+#include "sr_rt.h"
 
 uint16_t cksum (const void *_data, int len) {
   const uint8_t *data = _data;
@@ -187,20 +187,37 @@ void print_hdrs(uint8_t *buf, uint32_t length) {
   }
 }
 
+/* My helper functions start here */
+
+struct sr_if* find_dst_if(struct sr_instance *sr, uint32_t dst){
+    struct sr_rt* temp = sr->routing_table;
+
+    while(temp) {
+      uint32_t dst_ = temp->mask.s_addr & dst;
+      if(dst_ == temp->dest.s_addr)
+        return sr_get_interface(sr, temp->interface);
+      temp = temp->next;
+    }
+    return NULL;
+}
+
+
+
+
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
-    return (sr_ethernet_hdr_t *)packet;
+  return (sr_ethernet_hdr_t *)packet;
 }
 
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet) {
-    return (sr_arp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
+  return (sr_arp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 }
 
 sr_ip_hdr_t *get_ip_hdr(uint8_t *packet) {
-    return (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
+  return (sr_ip_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t));
 }
 
 sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet) {
-    return (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
+  return (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
 }
 
 

@@ -46,6 +46,9 @@ void print_hdr_arp(uint8_t *buf);
 void print_hdrs(uint8_t *buf, uint32_t length);
 
 /* Helper functions */
+
+struct sr_if* find_dst_if(struct sr_instance *sr, uint32_t dst);
+
 /* Getting headers */
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet);
