@@ -4,6 +4,8 @@
 #include "sr_protocol.h"
 #include "sr_utils.h"
 #include "sr_rt.h"
+#include "sr_router.h"
+#include "sr_if.h"
 
 uint16_t cksum (const void *_data, int len) {
   const uint8_t *data = _data;
@@ -189,8 +191,8 @@ void print_hdrs(uint8_t *buf, uint32_t length) {
 
 /* My helper functions start here */
 
-struct sr_if* find_dst_if(struct sr_instance *sr, uint32_t dst){
-    struct sr_rt* temp = sr->routing_table;
+ struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
+    /*struct sr_rt* temp = sr->routing_table;
 
     while(temp) {
       uint32_t dst_ = temp->mask.s_addr & dst;
@@ -198,7 +200,7 @@ struct sr_if* find_dst_if(struct sr_instance *sr, uint32_t dst){
         return sr_get_interface(sr, temp->interface);
       temp = temp->next;
     }
-    return NULL;
+    return NULL;*/
 }
 
 
