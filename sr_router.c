@@ -29,10 +29,24 @@
 /* TODO: Add helper functions here... */
 
 /* See pseudo-code in sr_arpcache.h */
+/*
+function handle_arpreq(req):
+    if difftime(now, req->sent) > 1.0
+        if req->times_sent >= 5:
+            send icmp host unreachable to source addr of all pkts waiting
+              on this request
+            arpreq_destroy(req)
+        else:
+            send arp request
+            req->sent = now
+            req->times_sent++
+*/
+
 void handle_arpreq(struct sr_instance* sr, struct sr_arpreq *req){
-  /* TODO: Fill this in */
+
 
 }
+
 
 /*---------------------------------------------------------------------
  * Method: sr_init(void)
@@ -163,15 +177,10 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           break;
         case arp_op_reply:
           printf("\nAn ARP reply received!");
+          struct sr_arp_req *req = sr_arpcache_insert(cache, a_hdr->ar_sha, a_hdr->ar_sip);
           break;
         default:
           printf("\nCannot recognize this ARP frame");
           return;
       }
   }
-
-
-void handle_arpreq(struct sr_instance* , struct sr_arpreq* ){
-
-
-}

@@ -18,6 +18,26 @@
 void sr_arpcache_sweepreqs(struct sr_instance *sr) {
   /* TODO: Fill this in */
 
+  struct sr_arpreq *req = sr->cache.requests;
+  while(req != NULL) {
+    struct sr_arpreq *next_req = req->next;
+
+    time_t now = time(NULL);
+    pthread_mutex_lock(&sr->cache.lock);
+    if(difftime(now,req->sent) > 1.0) {
+      if(req->times_sent >= 5) {
+        printf("\nTimes sent exceed >= 5, dropping ARP request");
+      }
+      sr_arpreq_destroy(&sr->cache,req);
+    }
+    else {
+      printf("\nneed to implement resending ARP reqeust here");
+    }
+
+    req = next_req;
+
+}
+
 }
 
 /* You should not need to touch the rest of this code. */
