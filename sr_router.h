@@ -46,7 +46,7 @@ struct sr_instance
 {
     int  sockfd;   /* socket to server */
     char user[32]; /* user name */
-    char host[32]; /* host name */ 
+    char host[32]; /* host name */
     char template[30]; /* template name if any */
     unsigned short topo_id;
     struct sockaddr_in sr_addr; /* address to server */
@@ -75,6 +75,8 @@ void sr_set_ether_ip(struct sr_instance* , uint32_t );
 void sr_set_ether_addr(struct sr_instance* , const unsigned char* );
 void sr_print_if_list(struct sr_instance* );
 
+void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
+  struct sr_if *iface);
 /* -- sr_arpcache.c and sr_router.c -- */
 void handle_arpreq(struct sr_instance* , struct sr_arpreq* );
 

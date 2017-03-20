@@ -124,7 +124,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
   sr_arp_hdr_t *a_hdr = get_arp_hdr(packet);
-  a_hdr = get_arp_hdr(packet);
+  /* a_hdr = get_arp_hdr(packet); */
   /* printf("\nEthernet header is: %d, ARP header is: %d", e_hdr->ether_type,
    a_hdr); */
   uint16_t type_ = ntohs(e_hdr->ether_type);
@@ -135,8 +135,8 @@ void sr_handlepacket(struct sr_instance* sr,
         printf("\nSanity check failed, ARP packet dropped.");
         break;
       }
-      /*sr_handle_arp(sr, packet, len, iface); */
-
+      handle_arp(sr, e_hdr, a_hdr, iface);
+      /*sr_handlearp(sr, packet, len, iface); */
       break;
 
     case ethertype_ip:
@@ -149,8 +149,29 @@ void sr_handlepacket(struct sr_instance* sr,
       break;
   }
 
-
-
-
-
 }/* -- sr_handlepacket -- */
+
+
+void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
+  struct sr_if *iface){
+      sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
+      sr_arp_hdr_t *a_hdr = get_arp_hdr(packet);
+      printf("\nAn ARP packet received! Processing...");
+      switch(ntohs(a_hdr->ar_op)) {
+        case arp_op_request:
+          printf("\nAn ARP request received!");
+          break;
+        case arp_op_reply:
+          printf("\nAn ARP reply received!");
+        default:
+          printf("\nCannot recognize this ARP frame");
+          return;
+      }
+  }
+
+
+/*
+void handle_arpreq(struct sr_instance* , struct sr_arpreq* ){
+
+}
+*/

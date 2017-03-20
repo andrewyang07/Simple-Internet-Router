@@ -1,8 +1,8 @@
 #------------------------------------------------------------------------------
 # File: Makefile
-# 
+#
 # Note: This Makefile requires GNU make.
-# 
+#
 # (c) 2001,2000 Stanford University
 #
 #------------------------------------------------------------------------------
@@ -35,7 +35,7 @@ endif
 CFLAGS = -g -Wall -ansi -D_DEBUG_ -D_GNU_SOURCE $(ARCH)
 
 LIBS= $(SOCK) -lm -lpthread
-PFLAGS= -follow-child-processes=yes -cache-dir=/tmp/${USER} 
+PFLAGS= -follow-child-processes=yes -cache-dir=/tmp/${USER}
 PURIFY= purify ${PFLAGS}
 
 # Add any header files you've added here
@@ -55,15 +55,15 @@ $(sr_OBJS) : %.o : %.c
 $(sr_DEPS) : .%.d : %.c
 	$(CC) -MM $(CFLAGS) $<  > $@
 
--include $(sr_DEPS)	
+-include $(sr_DEPS)
 
 sr : $(sr_OBJS)
-	$(CC) $(CFLAGS) -o sr $(sr_OBJS) $(LIBS) 
+	$(CC) $(CFLAGS) -o sr $(sr_OBJS) $(LIBS)
 
 sr.purify : $(sr_OBJS)
 	$(PURIFY) $(CC) $(CFLAGS) -o sr.purify $(sr_OBJS) $(LIBS)
 
-.PHONY : clean clean-deps dist    
+.PHONY : clean clean-deps dist
 
 clean:
 	rm -f *.o *~ core sr *.dump *.tar tags

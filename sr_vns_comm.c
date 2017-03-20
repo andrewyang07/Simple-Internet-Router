@@ -537,7 +537,7 @@ sr_ether_addrs_match_interface( struct sr_instance* sr, /* borrowed */
     }
 
     if ( memcmp( ether_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN) != 0 ){
-      
+
       fprintf( stderr, "** Error, source address does not match interface \n");
       print_addr_eth(ether_hdr->ether_shost);
       print_addr_eth(iface->addr);
