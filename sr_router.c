@@ -163,6 +163,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           break;
         case arp_op_reply:
           printf("\nAn ARP reply received!");
+          break;
         default:
           printf("\nCannot recognize this ARP frame");
           return;
@@ -170,8 +171,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
   }
 
 
-/*
 void handle_arpreq(struct sr_instance* , struct sr_arpreq* ){
 
+
 }
-*/
