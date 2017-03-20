@@ -190,8 +190,7 @@ void print_hdrs(uint8_t *buf, uint32_t length) {
 }
 
 /* My helper functions start here */
-
- struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
+struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
     /*struct sr_rt* temp = sr->routing_table;
 
     while(temp) {
