@@ -225,8 +225,6 @@ int sr_send_reply(struct sr_instance *sr, sr_arp_hdr_t *req_a_hdr,
 
    int res = sr_send_packet(sr, packet, len, iface->name);
    return res;
-
-
  }
 
 
