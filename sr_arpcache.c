@@ -10,6 +10,7 @@
 #include "sr_router.h"
 #include "sr_if.h"
 #include "sr_protocol.h"
+#include "sr_utils.h"
 
 /* This function gets called every second. For each request sent out, we keep
   checking whether we should resend an request or destroy the arp request.
@@ -25,15 +26,19 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
     time_t now = time(NULL);
     pthread_mutex_lock(&sr->cache.lock);
     if(difftime(now,req->sent) > 1.0) {
+
       if(req->times_sent >= 5) {
         printf("\nTimes sent exceed >= 5, dropping ARP request");
+        sr_arpreq_destroy(&sr->cache,req);
       }
-      sr_arpreq_destroy(&sr->cache,req);
     }
     else {
-      printf("\nneed to implement resending ARP reqeust here");
+      /* printf("\nneed to implement resending ARP reqeust here"); */
+      /*sr_send_request(sr, req->ip);
+      req->sent = time(NULL);
+      req->times_sent++;*/
     }
-
+    pthread_mutex_unlock(&sr->cache.lock);
     req = next_req;
 
 }
