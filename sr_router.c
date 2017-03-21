@@ -229,25 +229,26 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
         /* Handle ARP reply */
         case arp_op_reply:
           printf("\nAn ARP reply received!");
-
+          /* if (a_hdr->ar_tip == iface->ip) */
+          pthread_mutex_lock(&sr->cache.lock);
           sr_arpreq_t *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
 
           if (req!=NULL)
           {
-
             sr_packet_t *pkg=req->packets;
             printf("###$#$#$#$#$\n");
             while (pkg!=NULL)
             {
               sr_if_t* dst_iface=find_dst_if(sr, req->ip);
-              sr_forward_packet(sr, pkg->buf, pkg->len, dst_iface, a_hdr->ar_sha);
+              sr_forward_packet(sr, pkg->buf, pkg->len, dst_iface,
+                a_hdr->ar_sha);
               pkg=pkg->next;
               printf("sending pkg successfully\n");
             }
             printf("Sending pkg finished\n");
             /*sr_arpreq_destroy(&sr->cache, req);*/
           }
-
+          pthread_mutex_unlock(&sr->cache.lock);
           /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
           a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
           a_hdr->ar_sha[3] & 0xff, a_hdr->ar_sha[4] & 0xff, a_hdr->ar_sha[5] & 0xff);*/
@@ -265,7 +266,6 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           if req:
               send all packets on the req->packets linked list
               arpreq_destroy(req)*/
-
           break;
         default:
           printf("\nCannot recognize this ARP frame");
