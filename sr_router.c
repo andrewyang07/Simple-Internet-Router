@@ -232,7 +232,11 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           /* if (a_hdr->ar_tip == iface->ip) */
           pthread_mutex_lock(&sr->cache.lock);
           sr_arpreq_t *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
-
+          if(a_hdr->ar_tip != iface->ip){
+            /* If the ARP reply is not for us */
+            printf("We are not the destination of that ARP reply packet\n");
+            break;
+          }
           if (req!=NULL)
           {
             sr_packet_t *pkg=req->packets;
@@ -240,10 +244,15 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
             while (pkg!=NULL)
             {
               sr_if_t* dst_iface=find_dst_if(sr, req->ip);
-              sr_forward_packet(sr, pkg->buf, pkg->len, dst_iface,
+              /* Since we requested the MAC address from the sender of ARP reply */
+              /* We will need to send the IP packet waiting for that MAC address */
+              /* To send this packet, we'll use the same interface as reply packet */
+              /* printf("\nDestination Interface found is : %s", dst_iface->name);
+              printf("\nDestination Interface in packet is : %s", iface->name);*/
+              sr_forward_packet(sr, pkg->buf, pkg->len, iface,
                 a_hdr->ar_sha);
               pkg=pkg->next;
-              printf("sending pkg successfully\n");
+              printf("sending pkg successfully, through interface: %s\n", iface->name);
             }
             printf("Sending pkg finished\n");
             /*sr_arpreq_destroy(&sr->cache, req);*/

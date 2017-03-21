@@ -306,6 +306,7 @@ void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
   memcpy(e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
   memcpy(e_hdr->ether_dhost, mac, ETHER_ADDR_LEN);
+  /* We have to set ip_sum to 0 before we compute new sum */
   ip_hdr->ip_sum = 0;
   /* Compute checksum */
   ip_hdr->ip_sum = cksum((const void *)ip_hdr, sizeof(sr_ip_hdr_t));
