@@ -162,8 +162,9 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           printf("\nAn ARP request received!");
           /*firstly should check the arp cache using sr_arpcache_lookup
           */
-
-          struct sr_rt* temp=sr->routing_table;
+          sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
+          printf("\nSending ARP reply...");
+          sr_send_reply(sr,e_hdr, a_hdr, iface);
 
           /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
           a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
