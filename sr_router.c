@@ -281,7 +281,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
               printf("sending pkg \n");
             }
             printf("Sending pkg finished\n");
-            /*sr_arpreq_destroy(&sr->cache, req);*/
+            sr_arpreq_destroy(&sr->cache, req);
           }
           pthread_mutex_unlock(&sr->cache.lock);
           /*should save into request queue*/
