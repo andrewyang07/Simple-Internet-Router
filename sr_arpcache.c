@@ -34,9 +34,9 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr) {
     }
     else {
       /* printf("\nneed to implement resending ARP reqeust here"); */
-      /*sr_send_request(sr, req->ip);
+      sr_send_request(sr, req->ip);
       req->sent = time(NULL);
-      req->times_sent++;*/
+      req->times_sent++;
     }
     pthread_mutex_unlock(&sr->cache.lock);
     req = next_req;
