@@ -175,21 +175,18 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
         case arp_op_reply:
           printf("\nAn ARP reply received!");
 
-          /*struct sr_arp_req *req = sr_arpcache_insert(cache, a_hdr->ar_sha, a_hdr->ar_sip);
+          /*struct sr_arp_req *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
           if (req!=NULL)
           {
-            pkg=req->sr_packet;
+            sr_packet *pkg=req->sr_packets;
             while (pkg!=NULL)
             {
-              bool success=send(pkg->iface, pkg->buf, pkg->len, 0);
+              int success=send(pkg->iface, pkg->buf, pkg->len, 0);
               if (success==-1) continue;
               pkg=pkg->sr_packet;
             }
             sr_arpreq_destroy(cache, req);
-          }
-
-
-          */
+          }*/
 
 
 
