@@ -151,8 +151,10 @@ void sr_handlepacket(struct sr_instance* sr,
       {
         case ip_protocol_icmp:
           /*printf("\nICMP, Packet type: %d, IP type: %d",type_,ethertype_ip);*/
+
           printf("\n This is a ICMP packet");
-          handle_ICMP(sr, e_hdr, a_hdr, iface);
+
+          handle_ICMP(sr, e_hdr, len, iface);
           break;
         /*----------------------------------------------------------------------*/
         default:
@@ -174,6 +176,16 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   sr_icmp_hdr_t* icmp_header=get_icmp_hdr(packet);
   sr_ip_hdr_t* ip_header=get_ip_hdr(packet);
   sr_ethernet_hdr_t* eth_header=get_eth_hdr(packet);
+
+  sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_header->ip_dst);
+  if (dst_entry==NULL) {
+
+    sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_header->ip_dst, packet, len, iface->name);
+  }
+  else
+  {
+    sr_forward_packet(sr, packet, len, iface, dst_entry->mac);
+  }
 
   print_hdr_eth(eth_header);
 
