@@ -183,15 +183,7 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   }
   else
   {
-    /*printf("=============================found MAC\n");
-    printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-    dst_entry->mac[0] & 0xff, dst_entry->mac[1] & 0xff, dst_entry->mac[2] & 0xff,
-    dst_entry->mac[3] & 0xff, dst_entry->mac[4] & 0xff, dst_entry->mac[5] & 0xff);
-
-    printf("%s\n",iface->name);*/
-
     sr_if_t* dst_iface=find_dst_if(sr, ip_header->ip_dst);
-
     sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
     printf("Sending successfully\n");
   }
@@ -240,20 +232,12 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           printf("\nThis ARP is correct! Processing...");
           /*firstly should check the arp cache using sr_arpcache_lookup
           */
-
           sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
           sr_send_reply(sr,e_hdr, a_hdr, iface);
-
-          /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-          a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
-          a_hdr->ar_sha[3] & 0xff, a_hdr->ar_sha[4] & 0xff, a_hdr->ar_sha[5] & 0xff);*/
-
-
           break;
         /* Handle ARP reply */
         case arp_op_reply:
           printf("\nAn ARP reply received!");
-          /* if (a_hdr->ar_tip == iface->ip) */
           pthread_mutex_lock(&sr->cache.lock);
           sr_arpreq_t *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
           if(a_hdr->ar_tip != iface->ip){
@@ -282,12 +266,6 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
             /*sr_arpreq_destroy(&sr->cache, req);*/
           }
           pthread_mutex_unlock(&sr->cache.lock);
-          /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
-          a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
-          a_hdr->ar_sha[3] & 0xff, a_hdr->ar_sha[4] & 0xff, a_hdr->ar_sha[5] & 0xff);*/
-
-
-
           /*should save into request queue*/
 
           /*The ARP reply processing code should move entries from the ARP request
