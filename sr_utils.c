@@ -308,7 +308,7 @@ void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   memcpy(e_hdr->ether_dhost, mac, ETHER_ADDR_LEN);
   /* We have to set ip_sum to 0 before we compute new sum */
   /* If we don't do that, the ip_sum will be 0 not matter how to calculate it */
-  ip_hdr->ip_sum = 0; 
+  ip_hdr->ip_sum = 0;
   /* Compute checksum */
   ip_hdr->ip_sum = cksum((const void *)ip_hdr, sizeof(sr_ip_hdr_t));
   printf("\nChecksum of that packet is: %d\n",ip_hdr->ip_sum);

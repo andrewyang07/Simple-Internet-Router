@@ -198,6 +198,7 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
 void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
 {
   sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  sr_ip_hdr_t* eth_hdr = get_eth_hdr(packet);
   if(!sanity_check_ip(len)) {
     printf("Sanity check for IP failed. Dropping\n");
   }
@@ -223,6 +224,18 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
     return;
   }
   /* we'll forward packet here */
+  sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
+  if (dst_entry==NULL) {
+    sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_hdr->ip_dst, packet, len, iface->name);
+  }
+  else
+  {
+    sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+    sr_if_t* dst_iface=find_dst_if(sr, ip_hdr->ip_dst);
+    sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
+    printf("Sending successfully\n");
+  }
+
 }
 
 
@@ -263,7 +276,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
               /* To send this packet, we'll use the same interface as reply packet */
               /* printf("\nDestination Interface found is : %s", dst_iface->name);
               printf("\nDestination Interface in packet is : %s", iface->name);*/
-              sr_ip_hdr_t *ip_hdr = get_ip_hdr(pkg->buf);              
+              sr_ip_hdr_t *ip_hdr = get_ip_hdr(pkg->buf);
               ip_hdr->ip_ttl --;
               if(ip_hdr->ip_ttl == 0){
                 printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
