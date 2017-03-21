@@ -29,24 +29,10 @@
 /* TODO: Add helper functions here... */
 
 /* See pseudo-code in sr_arpcache.h */
-/*
-function handle_arpreq(req):
-    if difftime(now, req->sent) > 1.0
-        if req->times_sent >= 5:
-            send icmp host unreachable to source addr of all pkts waiting
-              on this request
-            arpreq_destroy(req)
-        else:
-            send arp request
-            req->sent = now
-            req->times_sent++
-*/
-
 void handle_arpreq(struct sr_instance* sr, struct sr_arpreq *req){
-
+  /* TODO: Fill this in */
 
 }
-
 
 /*---------------------------------------------------------------------
  * Method: sr_init(void)
@@ -174,10 +160,57 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
       switch(ntohs(a_hdr->ar_op)) {
         case arp_op_request:
           printf("\nAn ARP request received!");
+          /*firstly should check the arp cache using sr_arpcache_lookup
+          */
+
+          struct sr_rt* temp=sr->routing_table;
+
+          /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+          a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
+          a_hdr->ar_sha[3] & 0xff, a_hdr->ar_sha[4] & 0xff, a_hdr->ar_sha[5] & 0xff);*/
+
+
           break;
         case arp_op_reply:
           printf("\nAn ARP reply received!");
-          struct sr_arp_req *req = sr_arpcache_insert(cache, a_hdr->ar_sha, a_hdr->ar_sip);
+
+          /*struct sr_arp_req *req = sr_arpcache_insert(cache, a_hdr->ar_sha, a_hdr->ar_sip);
+          if (req!=NULL)
+          {
+            pkg=req->sr_packet;
+            while (pkg!=NULL)
+            {
+              bool success=send(pkg->iface, pkg->buf, pkg->len, 0);
+              if (success==-1) continue;
+              pkg=pkg->sr_packet;
+            }
+            sr_arpreq_destroy(cache, req);
+          }
+
+
+          */
+
+
+
+
+          /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+          a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
+          a_hdr->ar_sha[3] & 0xff, a_hdr->ar_sha[4] & 0xff, a_hdr->ar_sha[5] & 0xff);*/
+
+
+
+          /*should save into request queue*/
+
+          /*The ARP reply processing code should move entries from the ARP request
+          queue to the ARP cache:
+
+          # When servicing an arp reply that gives us an IP->MAC mapping
+          req = arpcache_insert(ip, mac)
+
+          if req:
+              send all packets on the req->packets linked list
+              arpreq_destroy(req)*/
+
           break;
         default:
           printf("\nCannot recognize this ARP frame");
