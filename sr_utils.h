@@ -67,7 +67,7 @@ sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet);
 sr_ip_hdr_t *get_ip_hdr(uint8_t *packet);
 sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet);
-
+sr_icmp_t3_hdr_t *get_icmp_t3_hdr(uint8_t *packet);
 
 /* Sanity check */
 int sanity_check_arp(unsigned int len);
