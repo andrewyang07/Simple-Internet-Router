@@ -254,6 +254,23 @@ int sr_send_request(struct sr_instance *sr, uint32_t tip){
   return res;
 }
 
+
+void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
+  unsigned int len, struct sr_if *iface, uint8_t* mac) {
+
+  sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
+  sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  memcpy(e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
+  memcpy(e_hdr->ether_dhost, mac, ETHER_ADDR_LEN);
+
+  /* Compute checksum */
+  ip_hdr->ip_sum = cksum((const void *)ip_hdr, sizeof(sr_ip_hdr_t));
+  printf("\nForwarding Packet");
+  sr_send_packet(sr, packet, len, iface->name);
+  }
+
+
+
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
   return (sr_ethernet_hdr_t *)packet;
 }

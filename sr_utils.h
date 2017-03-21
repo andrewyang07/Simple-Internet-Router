@@ -55,6 +55,8 @@ struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst);
 int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *req_a_hdr,
  sr_arp_hdr_t *req_e_hdr, struct sr_if* iface);
 int sr_send_request(struct sr_instance *sr, uint32_t tip);
+void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
+  unsigned int len, struct sr_if *iface, uint8_t* mac);
 
 /* Getting headers */
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);
