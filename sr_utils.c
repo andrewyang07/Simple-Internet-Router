@@ -192,7 +192,6 @@ void print_hdrs(uint8_t *buf, uint32_t length) {
 /* My helper functions start here */
 struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
     struct sr_rt* temp = sr->routing_table;
-
     while(temp) {
       uint32_t dst_ = temp->mask.s_addr & dst;
       if(dst_ == temp->dest.s_addr)
@@ -201,6 +200,34 @@ struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
     }
     return NULL;
 }
+
+int sr_send_reply(struct sr_instance *sr, sr_arp_hdr_t *req_a_hdr,
+  sr_ethernet_hdr_t *req_e_hdr, struct sr_if* iface){
+   unsigned int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
+   /* allocate memory to packet */
+   uint8_t *packet = (uint8_t *)malloc(len);
+   bzero(packet, len);
+   sr_ethernet_hdr_t *rep_e_hdr = get_eth_hdr(packet);
+   sr_arp_hdr_t *rep_a_hdr = get_arp_hdr(packet);
+   memcpy(rep_e_hdr->ether_dhost, req_e_hdr->ether_shost, ETHER_ADDR_LEN);
+   memcpy(rep_e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
+   rep_e_hdr->ether_type = ntohs(ethertype_arp);
+
+   rep_a_hdr->ar_hrd = req_a_hdr->ar_hrd;
+   rep_a_hdr->ar_pro = req_a_hdr->ar_pro;
+   rep_a_hdr->ar_hln = req_a_hdr->ar_hln;
+   rep_a_hdr->ar_pln = req_a_hdr->ar_pln;
+   rep_a_hdr->ar_op = htons(arp_op_reply);
+   memcpy(rep_a_hdr->ar_sha, iface->addr, ETHER_ADDR_LEN);
+   rep_a_hdr->ar_sip = iface->ip;
+   memcpy(rep_a_hdr->ar_tha, req_a_hdr->ar_sha, ETHER_ADDR_LEN);
+   rep_a_hdr->ar_tip = req_a_hdr->ar_sip;
+
+   int res = sr_send_packet(sr, packet, len, iface->name);
+   return res;
+
+
+ }
 
 
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {

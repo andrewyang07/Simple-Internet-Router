@@ -52,6 +52,8 @@ void print_hdrs(uint8_t *buf, uint32_t length);
 
 struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst);
 
+int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *e_hdr,
+ sr_arp_hdr_t *a_hdr, struct sr_if* iface);
 /* Getting headers */
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet);
