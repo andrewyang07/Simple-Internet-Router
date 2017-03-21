@@ -254,6 +254,49 @@ int sr_send_request(struct sr_instance *sr, uint32_t tip){
   return res;
 }
 
+int sr_send_icmp_t3_to(struct sr_instance *sr, uint8_t icmp_type,
+  uint8_t icmp_code, uint8_t *rcvd_packet, struct sr_if *iface){
+
+  unsigned int len = sizeof(sr_ethernet_hdr_t) +sizeof(sr_ip_hdr_t)
+  + sizeof(sr_icmp_t3_hdr_t);
+  uint8_t *packet = (uint8_t *)malloc(len);
+  bzero(packet, len);
+
+  sr_ethernet_hdr_t *eth_hdr = packet_get_eth_hdr(packet);
+  sr_ip_hdr_t *ip_hdr = packet_get_ip_hdr(packet);
+  sr_icmp_t3_hdr_t *icmp_hdr = packet_get_icmp_t3_hdr(packet);
+
+  sr_ethernet_hdr_t *rec_eth_hdr = packet_get_eth_hdr(rcvd_packet);
+  sr_ip_hdr_t *rec_ip_hdr = packet_get_ip_hdr(rcvd_packet);
+
+  struct sr_if *out_iface = sr_iface_for_dst(sr, rec_ip_hdr->ip_src);
+
+  memcpy(eth_hdr->ether_dhost, rec_eth_hdr->ether_shost, ETHER_ADDR_LEN);
+  memcpy(eth_hdr->ether_shost, out_iface->addr, ETHER_ADDR_LEN);
+  eth_hdr->ether_type = htons(ethertype_ip);
+
+  ip_hdr->ip_hl = rec_ip_hdr->ip_hl;
+  ip_hdr->ip_id = 0;
+  ip_hdr->ip_p = ip_protocol_icmp;
+  ip_hdr->ip_tos = rec_ip_hdr->ip_tos;
+  ip_hdr->ip_off = htons(IP_DF);
+  ip_hdr->ip_ttl = INIT_TTL;
+  ip_hdr->ip_v = rec_ip_hdr->ip_v;
+  ip_hdr->ip_src = iface->ip;
+  ip_hdr->ip_dst = rec_ip_hdr->ip_src;
+  ip_hdr->ip_len = htons(len - sizeof(sr_ethernet_hdr_t));
+  ip_hdr->ip_sum = 0;
+  ip_hdr->ip_sum = cksum(ip_hdr, sizeof(sr_ip_hdr_t));
+
+  icmp_hdr->icmp_type = icmp_type;
+  icmp_hdr->icmp_code = icmp_code;
+  memcpy(icmp_hdr->data, rec_ip_hdr, ICMP_DATA_SIZE);
+  icmp_hdr->icmp_sum = 0;
+  icmp_hdr->icmp_sum = cksum(icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
+
+  int res = sr_send_packet(sr, packet, len, out_iface->name);
+  return res;
+  }
 
 void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   unsigned int len, struct sr_if *iface, uint8_t* mac) {
