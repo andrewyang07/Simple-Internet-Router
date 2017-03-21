@@ -199,8 +199,32 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
 }
 void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
 {
-
-
+  sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  if(!sanity_check_ip(len)) {
+    printf("Sanity check for IP failed. Dropping\n");
+  }
+  if(!check_ip_chksum(ip_hdr)){
+    printf("Checksum check for IP failed. Dropping\n");
+  }
+  struct sr_if *temp = sr->if_list;
+  while(temp){
+    /* Check if it matches one of our interfaces */
+    if(temp->ip == ip_hdr->ip_dst){
+      printf("Got a IP packet from interface: %s\n",temp->name);
+      /* handle it */
+    }
+    temp = temp->next;
+  }
+  /* forward it if it is not destined to us */
+  printf("This IP packet is not for us, forwarding it\n");
+  /* decrement TTL, if TTL still > 0, forward it */
+  ip_hdr->ip_ttl --;
+  if(ip_hdr->ip_ttl == 0){
+    printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
+    /* send ICM type 3 message here */
+    return;
+  }
+  /* we'll forward packet here */
 }
 
 
@@ -252,7 +276,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
               sr_forward_packet(sr, pkg->buf, pkg->len, iface,
                 a_hdr->ar_sha);
               pkg=pkg->next;
-              printf("sending pkg successfully, through interface: %s\n", iface->name);
+              printf("sending pkg \n");
             }
             printf("Sending pkg finished\n");
             /*sr_arpreq_destroy(&sr->cache, req);*/
