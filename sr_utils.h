@@ -28,6 +28,9 @@
 #ifndef SR_UTILS_H
 #define SR_UTILS_H
 
+#include "sr_rt.h"
+#include "sr_if.h"
+
 uint16_t cksum(const void *_data, int len);
 
 uint16_t ethertype(uint8_t *buf);
@@ -47,7 +50,7 @@ void print_hdrs(uint8_t *buf, uint32_t length);
 
 /* Helper functions */
 
-/*struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst);*/
+struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst);
 
 /* Getting headers */
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);

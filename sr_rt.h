@@ -1,6 +1,6 @@
 /*-----------------------------------------------------------------------------
- * file:  sr_rt.h 
- * date:  Mon Oct 07 03:53:53 PDT 2002  
+ * file:  sr_rt.h
+ * date:  Mon Oct 07 03:53:53 PDT 2002
  * Author: casado@stanford.edu
  *
  * Description:
@@ -23,7 +23,7 @@
 /* ----------------------------------------------------------------------------
  * struct sr_rt
  *
- * Node in the routing table 
+ * Node in the routing table
  *
  * -------------------------------------------------------------------------- */
 
@@ -35,6 +35,7 @@ struct sr_rt
     char   interface[sr_IFACE_NAMELEN];
     struct sr_rt* next;
 };
+typedef struct sr_rt sr_rt_t;
 
 
 int sr_load_rt(struct sr_instance*,const char*);
