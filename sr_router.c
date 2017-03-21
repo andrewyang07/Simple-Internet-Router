@@ -156,14 +156,13 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
   struct sr_if *iface){
       sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
       sr_arp_hdr_t *a_hdr = get_arp_hdr(packet);
-      printf("\nAn ARP packet received! Processing...");
+      printf("\nAn ARP packet received! Validating...");
       switch(ntohs(a_hdr->ar_op)) {
         case arp_op_request:
-          printf("\nAn ARP request received!");
+          printf("\nThis ARP is correct! Processing...");
           /*firstly should check the arp cache using sr_arpcache_lookup
           */
           sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
-          printf("\nSending ARP reply...");
           sr_send_reply(sr,e_hdr, a_hdr, iface);
 
           /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",

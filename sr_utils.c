@@ -222,7 +222,7 @@ int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *req_e_hdr,
    rep_a_hdr->ar_sip = iface->ip;
    memcpy(rep_a_hdr->ar_tha, req_a_hdr->ar_sha, ETHER_ADDR_LEN);
    rep_a_hdr->ar_tip = req_a_hdr->ar_sip;
-
+   printf("\nSending ARP reply...");
    int res = sr_send_packet(sr, packet, len, iface->name);
    return res;
 }
