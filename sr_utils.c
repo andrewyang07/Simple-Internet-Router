@@ -212,22 +212,47 @@ int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *req_e_hdr,
    memcpy(rep_e_hdr->ether_dhost, req_e_hdr->ether_shost, ETHER_ADDR_LEN);
    memcpy(rep_e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
    rep_e_hdr->ether_type = ntohs(ethertype_arp);
-
-   rep_a_hdr->ar_hrd = req_a_hdr->ar_hrd;
-   rep_a_hdr->ar_pro = req_a_hdr->ar_pro;
    rep_a_hdr->ar_hln = req_a_hdr->ar_hln;
    rep_a_hdr->ar_pln = req_a_hdr->ar_pln;
    rep_a_hdr->ar_op = htons(arp_op_reply);
+   rep_a_hdr->ar_pro = req_a_hdr->ar_pro;
+   rep_a_hdr->ar_hrd = req_a_hdr->ar_hrd;
+   memcpy(rep_a_hdr->ar_tha, req_a_hdr->ar_sha, ETHER_ADDR_LEN);
    memcpy(rep_a_hdr->ar_sha, iface->addr, ETHER_ADDR_LEN);
    rep_a_hdr->ar_sip = iface->ip;
-   memcpy(rep_a_hdr->ar_tha, req_a_hdr->ar_sha, ETHER_ADDR_LEN);
    rep_a_hdr->ar_tip = req_a_hdr->ar_sip;
    printf("\nSending reply\n");
    int res = sr_send_packet(sr, packet, len, iface->name);
    return res;
 }
 
+int sr_send_request(struct sr_instance *sr, uint32_t tip){
+  unsigned int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
+  /* allocate memory to packet */
+  uint8_t *packet = (uint8_t *)malloc(len);
+  bzero(packet, len);
 
+  struct sr_if *iface = find_dst_if(sr, tip);
+  struct sr_ethernet_hdr *e_hdr = get_eth_hdr(packet);
+  struct sr_arp_hdr *a_hdr = get_arp_hdr(packet);
+
+  memset(e_hdr->ether_dhost, 0xff, ETHER_ADDR_LEN);
+  memcpy(e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
+  e_hdr->ether_type = htons(ethertype_arp);
+
+  a_hdr->ar_hln = ETHER_ADDR_LEN;
+  a_hdr->ar_pln = 4;
+  a_hdr->ar_op = htons(arp_op_request);
+  a_hdr->ar_pro = htons(ethertype_ip);
+  a_hdr->ar_hrd = htons(arp_hrd_ethernet);
+  memset(a_hdr->ar_tha, 0xff, ETHER_ADDR_LEN);
+  memcpy(a_hdr->ar_sha, iface->addr, ETHER_ADDR_LEN);
+  a_hdr->ar_sip = iface->ip;
+  a_hdr->ar_tip = tip;
+
+  int res = sr_send_packet(sr, packet, len, iface->name);
+  return res;
+}
 
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
   return (sr_ethernet_hdr_t *)packet;
