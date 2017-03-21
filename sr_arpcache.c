@@ -93,7 +93,10 @@ struct sr_arpreq_t *sr_arpcache_queuereq(struct sr_arpcache *cache,
     }
 
     /* If the IP wasn't found, add it */
+    int first_one=0;
+
     if (!req) {
+        first_one=1;
         req = (struct sr_arpreq *) calloc(1, sizeof(struct sr_arpreq));
         req->ip = ip;
         req->next = cache->requests;
@@ -103,14 +106,14 @@ struct sr_arpreq_t *sr_arpcache_queuereq(struct sr_arpcache *cache,
     /* Add the packet to the list of packets for this request */
     if (packet && packet_len && iface) {
         struct sr_packet *new_pkt = (struct sr_packet *)malloc(sizeof(struct sr_packet));
-
         new_pkt->buf = (uint8_t *)malloc(packet_len);
         memcpy(new_pkt->buf, packet, packet_len);
         new_pkt->len = packet_len;
-		new_pkt->iface = (char *)malloc(sr_IFACE_NAMELEN);
+		    new_pkt->iface = (char *)malloc(sr_IFACE_NAMELEN);
         strncpy(new_pkt->iface, iface, sr_IFACE_NAMELEN);
         new_pkt->next = req->packets;
         req->packets = new_pkt;
+        /*if (first_one==1) new_pkt->next=NULL;*/
     }
 
     pthread_mutex_unlock(&(cache->lock));

@@ -179,15 +179,22 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
 
   sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_header->ip_dst);
   if (dst_entry==NULL) {
-
     sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_header->ip_dst, packet, len, iface->name);
   }
   else
   {
-    sr_forward_packet(sr, packet, len, iface, dst_entry->mac);
-  }
+    /*printf("=============================found MAC\n");
+    printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
+    dst_entry->mac[0] & 0xff, dst_entry->mac[1] & 0xff, dst_entry->mac[2] & 0xff,
+    dst_entry->mac[3] & 0xff, dst_entry->mac[4] & 0xff, dst_entry->mac[5] & 0xff);
 
-  print_hdr_eth(eth_header);
+    printf("%s\n",iface->name);*/
+
+    sr_if_t* dst_iface=find_dst_if(sr, ip_header->ip_dst);
+
+    sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
+    printf("Sending successfully\n");
+  }
 
 }
 void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
@@ -220,21 +227,23 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
         case arp_op_reply:
           printf("\nAn ARP reply received!");
 
-          /*struct sr_arp_req *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
+          sr_arpreq_t *req = sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
+
           if (req!=NULL)
           {
-            sr_packet *pkg=req->sr_packets;
+
+            sr_packet_t *pkg=req->packets;
+            printf("###$#$#$#$#$\n");
             while (pkg!=NULL)
             {
-              int success=send(pkg->iface, pkg->buf, pkg->len, 0);
-              if (success==-1) continue;
-              pkg=pkg->sr_packet;
+              sr_if_t* dst_iface=find_dst_if(sr, req->ip);
+              sr_forward_packet(sr, pkg->buf, pkg->len, dst_iface, a_hdr->ar_sha);
+              pkg=pkg->next;
+              printf("sending pkg successfully\n");
             }
-            sr_arpreq_destroy(cache, req);
-          }*/
-
-
-
+            printf("Sending pkg finished\n");
+            /*sr_arpreq_destroy(&sr->cache, req);*/
+          }
 
           /*printf("Sender MAC: %02x:%02x:%02x:%02x:%02x:%02x\n",
           a_hdr->ar_sha[0] & 0xff, a_hdr->ar_sha[1] & 0xff, a_hdr->ar_sha[2] & 0xff,
