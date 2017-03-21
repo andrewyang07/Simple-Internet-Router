@@ -254,7 +254,50 @@ int sr_send_request(struct sr_instance *sr, uint32_t tip){
   return res;
 }
 
-
+int sr_send_icmp_t3(struct sr_instance *sr, uint8_t icmp_type,
+uint8_t icmp_code, uint8_t *rcvd_packet, struct sr_if *iface){
+/* Calculate length of header */
+unsigned int len = sizeof(sr_ethernet_hdr_t) +sizeof(sr_ip_hdr_t)
++ sizeof(sr_icmp_t3_hdr_t);
+  /* Allocate memory space for ICMP packet */
+  uint8_t *packet = (uint8_t *)malloc(len);
+  bzero(packet, len);
+  /* Assign new Headers */
+  sr_ethernet_hdr_t *e_hdr = get_eth_hdr(packet);
+  sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  sr_icmp_t3_hdr_t *icmp_hdr = get_icmp_t3_hdr(packet);
+  /* Extract imformation from received data packets */
+  sr_ip_hdr_t *rec_ip_hdr = get_ip_hdr(rcvd_packet);
+  sr_ethernet_hdr_t *rec_eth_hdr = get_eth_hdr(rcvd_packet);
+  /* Use helper function to find outgoing interface by looking up route table */
+  struct sr_if *new_iface = find_dst_if(sr, rec_ip_hdr->ip_src);
+  /* Assigning values to ethernet headers */
+  memcpy(e_hdr->ether_dhost, rec_eth_hdr->ether_shost, ETHER_ADDR_LEN);
+  e_hdr->ether_type = htons(ethertype_ip);
+  memcpy(e_hdr->ether_shost, new_iface->addr, ETHER_ADDR_LEN);
+  /* Assigning values to IP headers */
+  ip_hdr->ip_id = 0;
+  ip_hdr->ip_hl = rec_ip_hdr->ip_hl;
+  ip_hdr->ip_p = ip_protocol_icmp;
+  ip_hdr->ip_tos = rec_ip_hdr->ip_tos;
+  ip_hdr->ip_v = rec_ip_hdr->ip_v;
+  ip_hdr->ip_src = iface->ip;
+  ip_hdr->ip_off = htons(IP_DF);
+  ip_hdr->ip_ttl = INIT_TTL;
+  ip_hdr->ip_sum = 0;
+  ip_hdr->ip_sum = cksum(ip_hdr, sizeof(sr_ip_hdr_t));
+  ip_hdr->ip_dst = rec_ip_hdr->ip_src;
+  ip_hdr->ip_len = htons(len - sizeof(sr_ethernet_hdr_t));
+  /* Assigning values to ICMP headers */
+  icmp_hdr->icmp_type = icmp_type;
+  icmp_hdr->icmp_code = icmp_code;
+  memcpy(icmp_hdr->data, rec_ip_hdr, ICMP_DATA_SIZE);
+  /* icmp_hdr->icmp_sum = 0; */
+  icmp_hdr->icmp_sum = cksum(icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
+  /* Send this new constructed ICMP type 3 packet */
+  int res = sr_send_packet(sr, packet, len, new_iface->name);
+  return res;
+}
 
 void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   unsigned int len, struct sr_if *iface, uint8_t* mac) {
@@ -288,7 +331,9 @@ sr_icmp_hdr_t *get_icmp_hdr(uint8_t *packet) {
   return (sr_icmp_hdr_t *)(packet + sizeof(sr_ethernet_hdr_t) + sizeof(sr_ip_hdr_t));
 }
 
-
+sr_icmp_t3_hdr_t *get_icmp_t3_hdr(uint8_t *packet) {
+  return (sr_icmp_t3_hdr_t *)get_icmp_hdr(packet);
+}
 /* Sanity check */
 
 int sanity_check_arp(unsigned int len) {

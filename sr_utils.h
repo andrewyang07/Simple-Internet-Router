@@ -58,8 +58,8 @@ int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *req_a_hdr,
  sr_arp_hdr_t *req_e_hdr, struct sr_if* iface);
 int sr_send_request(struct sr_instance *sr, uint32_t tip);
 
-int sr_send_icmp_t3_to(struct sr_instance *sr, uint8_t icmp_type,
-  uint8_t icmp_code, uint8_t *packet, struct sr_if *rec_iface);
+int sr_send_icmp_t3(struct sr_instance *sr, uint8_t icmp_type,
+uint8_t icmp_code, uint8_t *rcvd_packet, struct sr_if *iface);
 
 void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   unsigned int len, struct sr_if *iface, uint8_t* mac);
