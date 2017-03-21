@@ -201,8 +201,8 @@ struct sr_if *find_dst_if(struct sr_instance *sr, uint32_t dst){
     return NULL;
 }
 
-int sr_send_reply(struct sr_instance *sr, sr_arp_hdr_t *req_a_hdr,
-  sr_ethernet_hdr_t *req_e_hdr, struct sr_if* iface){
+int sr_send_reply(struct sr_instance *sr, sr_ethernet_hdr_t *req_e_hdr,
+  sr_arp_hdr_t *req_a_hdr, struct sr_if* iface){
    unsigned int len = sizeof(sr_ethernet_hdr_t) + sizeof(sr_arp_hdr_t);
    /* allocate memory to packet */
    uint8_t *packet = (uint8_t *)malloc(len);
@@ -225,7 +225,7 @@ int sr_send_reply(struct sr_instance *sr, sr_arp_hdr_t *req_a_hdr,
 
    int res = sr_send_packet(sr, packet, len, iface->name);
    return res;
- }
+}
 
 
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
