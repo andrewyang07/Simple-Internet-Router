@@ -114,7 +114,7 @@ void sr_handlepacket(struct sr_instance* sr,
   /*assert(len); */
   assert(interface);
 
-  print_hdr_ip(packet);
+
   printf("*** -> Received packet of length %d\n",len);
 
   /* TODO: Add forwarding logic here */
@@ -143,7 +143,10 @@ void sr_handlepacket(struct sr_instance* sr,
 /*------------------------------------------------------------------------------*/
     case ethertype_ip:
       printf("\n received IP packet");
-      uint8_t ip_type=ntohs(get_ip_hdr(packet)->ip_p);
+      sr_ip_hdr_t *ip_header= get_ip_hdr(packet);
+      /*print_hdr_ip(ip_header);*/
+      uint8_t ip_type=ip_header->ip_p;
+
       switch(ip_type)
       {
         case ip_protocol_icmp:
@@ -167,9 +170,20 @@ void sr_handlepacket(struct sr_instance* sr,
 }/* -- sr_handlepacket -- */
 
 void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
-{}
+{
+  sr_icmp_hdr_t* icmp_header=get_icmp_hdr(packet);
+  sr_ip_hdr_t* ip_header=get_ip_hdr(packet);
+  sr_ethernet_hdr_t* eth_header=get_eth_hdr(packet);
+
+  print_hdr_eth(eth_header);
+
+}
 void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
-{}
+{
+
+
+}
+
 
 
 void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
