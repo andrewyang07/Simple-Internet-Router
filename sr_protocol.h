@@ -167,6 +167,20 @@ enum sr_arp_hrd_fmt {
   arp_hrd_ethernet = 0x0001,
 };
 
+enum sr_icmp_type {
+  icmp_type_echo_req = 0x0008,
+  icmp_type_echo_rep = 0x0,
+  icmp_type_dest_unreach = 0x0003,
+  icmp_type_time_exceed = 0x000b,
+};
+
+enum sr_icmp_code {
+  icmp_code_empty = 0x0,
+  icmp_code_port_unreach = 0x0003,
+  icmp_code_ttl_expired = 0x0,
+  icmp_code_net_unreach = 0x0,
+  icmp_code_host_unreach = 0x0001,
+};
 
 struct sr_arp_hdr
 {

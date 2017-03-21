@@ -64,6 +64,9 @@ uint8_t icmp_code, uint8_t *rcvd_packet, struct sr_if *iface);
 void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   unsigned int len, struct sr_if *iface, uint8_t* mac);
 
+void sr_forwarding (struct sr_instance *sr, uint8_t *packet,
+  unsigned int len, struct sr_if *iface);
+
 /* Getting headers */
 sr_arp_hdr_t *get_arp_hdr(uint8_t *packet);
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet);

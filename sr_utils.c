@@ -316,7 +316,35 @@ void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   sr_send_packet(sr, packet, len, iface->name);
   }
 
+void sr_forwarding (struct sr_instance *sr, uint8_t *packet,
+  unsigned int len, struct sr_if *iface) {
+    sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+    struct sr_if *iface_found = find_dst_if(sr, ip_hdr->ip_dst);
+    /* if we cannot find a interface for the destination ip */
+    if(iface_found == NULL){
+      printf("No interfaces found for this destination ip, sending ICMP\n");
+      sr_send_icmp_t3(sr, icmp_type_dest_unreach,
+      icmp_code_net_unreach, packet, iface);
+    }
+    /* if we can find interface */
+    else{
 
+      sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
+      if (dst_entry==NULL) {
+        sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache,
+          ip_hdr->ip_dst, packet, len, iface_found->name);
+        return;
+      }
+      else
+      {
+        /* forward the packet */
+        sr_forward_packet(sr, packet, len, iface_found, dst_entry->mac);
+        free(dst_entry);
+        printf("Forwarding successfully\n");
+        return;
+      }
+    }
+  }
 
 sr_ethernet_hdr_t *get_eth_hdr(uint8_t *packet) {
   return (sr_ethernet_hdr_t *)packet;

@@ -194,6 +194,8 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   }
 
 }
+
+
 void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
 {
   sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
@@ -222,7 +224,7 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
     /* TODO: send ICM type 3 message here */
     return;
   }
-  /* TODO: we'll forward packet here */
+  /* we'll forward packet here, Use the interface we found */
   sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
   if (dst_entry==NULL) {
     sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_hdr->ip_dst, packet, len, iface->name);
@@ -234,7 +236,6 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
     sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
     printf("Sending successfully\n");
   }
-
 }
 
 
