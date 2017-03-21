@@ -151,9 +151,7 @@ void sr_handlepacket(struct sr_instance* sr,
       {
         case ip_protocol_icmp:
           /*printf("\nICMP, Packet type: %d, IP type: %d",type_,ethertype_ip);*/
-
           printf("\n This is a ICMP packet");
-
           handle_ICMP(sr, e_hdr, len, iface);
           break;
         /*----------------------------------------------------------------------*/
@@ -170,7 +168,6 @@ void sr_handlepacket(struct sr_instance* sr,
   }
 
 }/* -- sr_handlepacket -- */
-
 void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
 {
   sr_icmp_hdr_t* icmp_header=get_icmp_hdr(packet);
@@ -183,6 +180,15 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   }
   else
   {
+    sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+
+    ip_hdr->ip_ttl --;
+    if(ip_hdr->ip_ttl == 0){
+      printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
+      /* send ICM type 3 message here */
+      return;
+    }
+
     sr_if_t* dst_iface=find_dst_if(sr, ip_header->ip_dst);
     sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
     printf("Sending successfully\n");
@@ -257,6 +263,14 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
               /* To send this packet, we'll use the same interface as reply packet */
               /* printf("\nDestination Interface found is : %s", dst_iface->name);
               printf("\nDestination Interface in packet is : %s", iface->name);*/
+              sr_ip_hdr_t *ip_hdr = get_ip_hdr(pkg->buf);              
+              ip_hdr->ip_ttl --;
+              if(ip_hdr->ip_ttl == 0){
+                printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
+                /* send ICM type 3 message here */
+                return;
+              }
+
               sr_forward_packet(sr, pkg->buf, pkg->len, iface,
                 a_hdr->ar_sha);
               pkg=pkg->next;
