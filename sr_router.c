@@ -174,21 +174,20 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   sr_ip_hdr_t* ip_header=get_ip_hdr(packet);
   sr_ethernet_hdr_t* eth_header=get_eth_hdr(packet);
 
+  sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  ip_hdr->ip_ttl --;
+  if(ip_hdr->ip_ttl == 0){
+    printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
+    /* send ICM type 3 message here */
+    return;
+  }
+
   sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_header->ip_dst);
   if (dst_entry==NULL) {
     sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_header->ip_dst, packet, len, iface->name);
   }
   else
   {
-    sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
-
-    ip_hdr->ip_ttl --;
-    if(ip_hdr->ip_ttl == 0){
-      printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
-      /* send ICM type 3 message here */
-      return;
-    }
-
     sr_if_t* dst_iface=find_dst_if(sr, ip_header->ip_dst);
     sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
     printf("Sending successfully\n");
@@ -267,7 +266,6 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
           if (req!=NULL)
           {
             sr_packet_t *pkg=req->packets;
-            printf("###$#$#$#$#$\n");
             while (pkg!=NULL)
             {
               sr_if_t* dst_iface=find_dst_if(sr, req->ip);
@@ -276,13 +274,6 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
               /* To send this packet, we'll use the same interface as reply packet */
               /* printf("\nDestination Interface found is : %s", dst_iface->name);
               printf("\nDestination Interface in packet is : %s", iface->name);*/
-              sr_ip_hdr_t *ip_hdr = get_ip_hdr(pkg->buf);
-              ip_hdr->ip_ttl --;
-              if(ip_hdr->ip_ttl == 0){
-                printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
-                /* send ICM type 3 message here */
-                return;
-              }
 
               sr_forward_packet(sr, pkg->buf, pkg->len, iface,
                 a_hdr->ar_sha);
