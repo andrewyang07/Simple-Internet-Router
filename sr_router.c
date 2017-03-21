@@ -211,10 +211,12 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
       sr_arp_hdr_t *a_hdr = get_arp_hdr(packet);
       printf("\nAn ARP packet received! Validating...");
       switch(ntohs(a_hdr->ar_op)) {
+        /* Handle ARP request */
         case arp_op_request:
           printf("\nThis ARP is correct! Processing...");
           /*firstly should check the arp cache using sr_arpcache_lookup
           */
+
           sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
           sr_send_reply(sr,e_hdr, a_hdr, iface);
 
@@ -224,6 +226,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
 
 
           break;
+        /* Handle ARP reply */
         case arp_op_reply:
           printf("\nAn ARP reply received!");
 
