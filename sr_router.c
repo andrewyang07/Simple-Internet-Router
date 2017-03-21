@@ -220,10 +220,10 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
   ip_hdr->ip_ttl --;
   if(ip_hdr->ip_ttl == 0){
     printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
-    /* send ICM type 3 message here */
+    /* TODO: send ICM type 3 message here */
     return;
   }
-  /* we'll forward packet here */
+  /* TODO: we'll forward packet here */
   sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
   if (dst_entry==NULL) {
     sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_hdr->ip_dst, packet, len, iface->name);
