@@ -292,7 +292,7 @@ unsigned int len = sizeof(sr_ethernet_hdr_t) +sizeof(sr_ip_hdr_t)
   icmp_hdr->icmp_type = icmp_type;
   icmp_hdr->icmp_code = icmp_code;
   memcpy(icmp_hdr->data, rec_ip_hdr, ICMP_DATA_SIZE);
-  /* icmp_hdr->icmp_sum = 0; */
+  icmp_hdr->icmp_sum = 0;
   icmp_hdr->icmp_sum = cksum(icmp_hdr, sizeof(sr_icmp_t3_hdr_t));
   /* Send this new constructed ICMP type 3 packet */
   int res = sr_send_packet(sr, packet, len, new_iface->name);
@@ -306,7 +306,7 @@ void sr_forward_packet(struct sr_instance *sr, uint8_t *packet,
   sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
   memcpy(e_hdr->ether_shost, iface->addr, ETHER_ADDR_LEN);
   memcpy(e_hdr->ether_dhost, mac, ETHER_ADDR_LEN);
-
+  ip_hdr->ip_sum = 0;
   /* Compute checksum */
   ip_hdr->ip_sum = cksum((const void *)ip_hdr, sizeof(sr_ip_hdr_t));
   printf("\nForwarding Packet");
