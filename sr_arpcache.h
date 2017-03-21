@@ -88,6 +88,7 @@ struct sr_arpentry {
     time_t added;
     int valid;
 };
+typedef struct sr_arpentry sr_arpentry_t;
 
 struct sr_arpreq {
     uint32_t ip;
@@ -99,6 +100,7 @@ struct sr_arpreq {
     struct sr_packet *packets;  /* List of pkts waiting on this req to finish */
     struct sr_arpreq *next;
 };
+typedef struct sr_arpreq sr_arpreq_t;
 
 struct sr_arpcache {
     struct sr_arpentry entries[SR_ARPCACHE_SZ];
@@ -109,7 +111,7 @@ struct sr_arpcache {
 
 /* Checks if an IP->MAC mapping is in the cache. IP is in network byte order.
    You must free the returned structure if it is not NULL. */
-struct sr_arpentry *sr_arpcache_lookup(struct sr_arpcache *cache, uint32_t ip);
+struct sr_arpentry_t *sr_arpcache_lookup(struct sr_arpcache *cache, uint32_t ip);
 
 /* Adds an ARP request to the ARP request queue. If the request is already on
    the queue, adds the packet to the linked list of packets for this sr_arpreq
@@ -118,7 +120,7 @@ struct sr_arpentry *sr_arpcache_lookup(struct sr_arpcache *cache, uint32_t ip);
 
    A pointer to the ARP request is returned; it should not be freed. The caller
    can remove the ARP request from the queue by calling sr_arpreq_destroy. */
-struct sr_arpreq *sr_arpcache_queuereq(struct sr_arpcache *cache,
+struct sr_arpreq_t *sr_arpcache_queuereq(struct sr_arpcache *cache,
                          uint32_t ip,
                          uint8_t *packet,               /* borrowed */
                          unsigned int packet_len,
@@ -133,7 +135,7 @@ void sr_arpcache_sweepreqs(struct sr_instance *sr);
    1) Looks up this IP in the request queue. If it is found, returns a pointer
       to the sr_arpreq with this IP. Otherwise, returns NULL.
    2) Inserts this IP to MAC mapping in the cache, and marks it valid. */
-struct sr_arpreq *sr_arpcache_insert(struct sr_arpcache *cache,
+struct sr_arpreq_t *sr_arpcache_insert(struct sr_arpcache *cache,
                                      unsigned char *mac,
                                      uint32_t ip);
 
