@@ -114,6 +114,7 @@ void sr_handlepacket(struct sr_instance* sr,
   /*assert(len); */
   assert(interface);
 
+  print_hdr_ip(packet);
   printf("*** -> Received packet of length %d\n",len);
 
   /* TODO: Add forwarding logic here */
@@ -129,6 +130,7 @@ void sr_handlepacket(struct sr_instance* sr,
    a_hdr); */
   uint16_t type_ = ntohs(e_hdr->ether_type);
   switch(type_){
+/*------------------------------------------------------------------------------*/
     case ethertype_arp:
       printf("\nARP, Packet type: %d, Arp type: %d",type_,ethertype_arp);
       if(!sanity_check_arp(len)){
@@ -138,11 +140,24 @@ void sr_handlepacket(struct sr_instance* sr,
       handle_arp(sr, e_hdr, a_hdr, iface);
       /*sr_handlearp(sr, packet, len, iface); */
       break;
-
+/*------------------------------------------------------------------------------*/
     case ethertype_ip:
-      printf("\nIP, Packet type: %d, IP type: %d",type_,ethertype_ip);
+      printf("\n received IP packet");
+      uint8_t ip_type=ntohs(get_ip_hdr(packet)->ip_p);
+      switch(ip_type)
+      {
+        case ip_protocol_icmp:
+          /*printf("\nICMP, Packet type: %d, IP type: %d",type_,ethertype_ip);*/
+          printf("\n This is a ICMP packet");
+          handle_ICMP(sr, e_hdr, a_hdr, iface);
+          break;
+        /*----------------------------------------------------------------------*/
+        default:
+          printf("\nThis is a IP packet");
+          handle_IP(sr, e_hdr, a_hdr, iface);
+      }
       break;
-
+/*------------------------------------------------------------------------------*/
     default:
       printf("\nUnknown Packet type. Packet dropped.");
       printf("\nPacket type: %d,IP type: %d, ARP type: %d",type_,ethertype_ip,ethertype_arp);
@@ -150,6 +165,11 @@ void sr_handlepacket(struct sr_instance* sr,
   }
 
 }/* -- sr_handlepacket -- */
+
+void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
+{}
+void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct sr_if *iface)
+{}
 
 
 void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
