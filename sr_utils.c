@@ -272,6 +272,7 @@ int sr_send_icmp_t0(struct sr_instance *sr, uint8_t *packet, uint8_t icmp_type,
   ip_hdr->ip_dst = temp;
   icmp_hdr->icmp_type = icmp_type;
   icmp_hdr->icmp_code = icmp_code;
+  ip_hdr->ip_id = 0;
   /* Again, set checksum to 0 first */
   icmp_hdr->icmp_sum = 0;
   /* Then compute the correct checksum */
