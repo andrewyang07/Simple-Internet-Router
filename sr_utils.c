@@ -303,7 +303,8 @@ unsigned int len = sizeof(sr_ethernet_hdr_t) +sizeof(sr_ip_hdr_t)
   e_hdr->ether_type = htons(ethertype_ip);
   memcpy(e_hdr->ether_shost, new_iface->addr, ETHER_ADDR_LEN);
   /* Assigning values to IP headers */
-  ip_hdr->ip_id = 0;
+  /* set the packet id to equal the received packet id */
+  ip_hdr->ip_id = rec_ip_hdr->ip_id;
   ip_hdr->ip_hl = rec_ip_hdr->ip_hl;
   ip_hdr->ip_p = ip_protocol_icmp;
   ip_hdr->ip_tos = rec_ip_hdr->ip_tos;

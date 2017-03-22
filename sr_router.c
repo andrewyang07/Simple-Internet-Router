@@ -177,7 +177,7 @@ void sr_handlepacket(struct sr_instance* sr,
           printf("\n This is a ICMP packet");
           sr_icmp_hdr_t *icmp_hdr = get_icmp_hdr(packet);
           if(!sanity_check_icmp(len))
-            return;            
+            return;
           if(!check_icmp_chksum(ip_header->ip_len, icmp_hdr))
             return;
           handle_ICMP(sr, e_hdr, len, iface);
