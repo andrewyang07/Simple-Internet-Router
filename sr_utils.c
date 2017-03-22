@@ -254,6 +254,33 @@ int sr_send_request(struct sr_instance *sr, uint32_t tip){
   return res;
 }
 
+int sr_send_icmp_t0(struct sr_instance *sr, uint8_t *packet, uint8_t icmp_type,
+  uint8_t icmp_code, unsigned int len, struct sr_if *iface){
+  sr_ethernet_hdr_t *eth_hdr = get_eth_hdr(packet);
+  sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
+  sr_icmp_hdr_t *icmp_hdr = get_icmp_hdr(packet);
+
+  /*  */
+  memcpy(eth_hdr->ether_dhost, eth_hdr->ether_shost, ETHER_ADDR_LEN);
+  /* Get the interface using its destination IP address */
+  struct sr_if *iface_ = find_dst_if(sr, ip_hdr->ip_src);
+  memcpy(eth_hdr->ether_shost, iface_->addr, ETHER_ADDR_LEN);
+
+  uint32_t temp = ip_hdr->ip_src;
+  ip_hdr->ip_src = iface->ip;
+  /* swap destination and source */
+  ip_hdr->ip_dst = temp;
+  icmp_hdr->icmp_type = icmp_type;
+  icmp_hdr->icmp_code = icmp_code;
+  /* Again, set checksum to 0 first */
+  icmp_hdr->icmp_sum = 0;
+  /* Then compute the correct checksum */
+  icmp_hdr->icmp_sum = cksum(icmp_hdr, sizeof(sr_icmp_hdr_t));
+
+  int res = sr_send_packet(sr, packet, len, iface_->name);
+  return res;
+  }
+
 int sr_send_icmp_t3(struct sr_instance *sr, uint8_t icmp_type,
 uint8_t icmp_code, uint8_t *rcvd_packet, struct sr_if *iface){
 /* Calculate length of header */
