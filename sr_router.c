@@ -258,8 +258,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
         case arp_op_request:
           printf("\nThis ARP is correct! Processing...");
           /*firstly should check the arp cache using sr_arpcache_lookup
-          */
-          sr_arpcache_insert(&sr->cache, a_hdr->ar_sha, a_hdr->ar_sip);
+          */          
           sr_send_reply(sr,e_hdr, a_hdr, iface);
           break;
         /* Handle ARP reply */
@@ -291,6 +290,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
             }
             printf("Sending pkg finished\n");
             sr_arpreq_destroy(&sr->cache, req);
+
           }
           pthread_mutex_unlock(&sr->cache.lock);
           /*should save into request queue*/
