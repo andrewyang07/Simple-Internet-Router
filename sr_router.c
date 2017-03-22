@@ -176,9 +176,9 @@ void sr_handlepacket(struct sr_instance* sr,
           /*printf("\nICMP, Packet type: %d, IP type: %d",type_,ethertype_ip);*/
           printf("\n This is a ICMP packet");
           sr_icmp_hdr_t *icmp_hdr = get_icmp_hdr(packet);
-          if(sanity_check_icmp(len))
-            return;
-          if(check_icmp_chksum(ip_header->ip_len, icmp_hdr))
+          if(!sanity_check_icmp(len))
+            return;            
+          if(!check_icmp_chksum(ip_header->ip_len, icmp_hdr))
             return;
           handle_ICMP(sr, e_hdr, len, iface);
           break;
@@ -242,12 +242,12 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
           sr_send_icmp_t3(sr, icmp_type_dest_unreach, icmp_code_port_unreach,
           packet, iface);
         case ip_protocol_icmp:
-          if(sanity_check_icmp(len))
+          if(!sanity_check_icmp(len))
             return;
-          if(check_icmp_chksum(ip_hdr->ip_len, icmp_hdr))
+          if(!check_icmp_chksum(ip_hdr->ip_len, icmp_hdr))
             return;
-            if(icmp_hdr->icmp_code == icmp_code_empty &&
-              icmp_hdr->icmp_type == icmp_type_echo_req){
+            if( (icmp_hdr->icmp_code == icmp_code_empty) &&
+              (icmp_hdr->icmp_type == icmp_type_echo_req) ){
                 sr_send_icmp_t0(sr, packet, icmp_type_echo_rep,
                   icmp_type_echo_rep, len, iface);
               }
