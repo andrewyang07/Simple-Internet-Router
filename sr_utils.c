@@ -327,23 +327,24 @@ void sr_forwarding (struct sr_instance *sr, uint8_t *packet,
       icmp_code_net_unreach, packet, iface);
     }
     /* if we can find interface */
-    else{
-
-      sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
-      if (dst_entry==NULL) {
-        sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache,
-          ip_hdr->ip_dst, packet, len, iface_found->name);
-        handle_arpreq(sr,new_req);
-        return;
-      }
-      else
+    else
       {
-        /* forward the packet */
-        sr_forward_packet(sr, packet, len, iface_found, dst_entry->mac);
-        free(dst_entry);
-        printf("Forwarding successfully\n");
-        return;
-      }
+        sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
+        if (dst_entry==NULL)
+        {                    
+          sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache,
+            ip_hdr->ip_dst, packet, len, iface_found->name);
+          /*handle_arpreq(sr,new_req);*/
+          return;
+        }
+        else
+        {
+          /* forward the packet */
+          sr_forward_packet(sr, packet, len, iface_found, dst_entry->mac);
+          free(dst_entry);
+          printf("Forwarding successfully\n");
+          return;
+        }
     }
   }
 

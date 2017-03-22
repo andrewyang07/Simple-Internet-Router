@@ -139,6 +139,7 @@ void sr_handlepacket(struct sr_instance* sr,
 
   printf("*** -> Received packet of length %d\n",len);
 
+
   /* TODO: Add forwarding logic here */
   /* uint32_t sum = cksum (const void *_data, int len); */
   /* struct if_tt*           arp_table = 0; */
@@ -179,7 +180,7 @@ void sr_handlepacket(struct sr_instance* sr,
         /*----------------------------------------------------------------------*/
         default:
           printf("\nThis is a IP packet");
-          handle_IP(sr, e_hdr, a_hdr, iface);
+          handle_IP(sr, e_hdr, len, iface);
       }
       break;
 /*------------------------------------------------------------------------------*/
@@ -236,6 +237,7 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
     return;
   }
   /* we'll forward packet here, Use the interface we found */
+
   sr_forwarding (sr, packet, len, iface);
 }
 
