@@ -6,26 +6,26 @@ Work Division:
 
 Yang Yang:
 
-Implemented and tested helper functions in sr_utils.c
-Finished and tested sr_handlepacket function in sr_router.c
-Implemented and tested  handle_IP function in sr_router.c
-Added enum sr_icmp_type and enum sr_icmp_code and enum sr_ip_protocol in sr_protocol.h
-Implemented and tested handle_IP function.
+1. Implemented and tested helper functions in sr_utils.c
+2. Finished and tested sr_handlepacket function in sr_router.c
+3. Implemented and tested  handle_IP function in sr_router.c
+4. Added enum sr_icmp_type and enum sr_icmp_code and enum sr_ip_protocol in sr_protocol.h
+5. Implemented and tested handle_IP function.
 
 Site Li:
 
-Tested and debugged helper functions in sr_utils.c
-Implemented and tested handle_arp_reply function
-Implemented and tested the structure of sr_handlepacket in sr_router.c
-Implemented and tested handle_ICMP function in sr_router.c
+1. Tested and debugged helper functions in sr_utils.c
+2. Implemented and tested handle_arp_reply function
+3. Implemented and tested the structure of sr_handlepacket in sr_router.c
+4. Implemented and tested handle_ICMP function in sr_router.c
 
 Works we did together:
 
-Requirement analysis
-Testing and Debugging using Wireshark
-Implementation of sr_handlepacket function and handle_arp function in sr_router.c
-Overall improvement of the code
-Analysis and fix of bugs
+1. Requirement analysis
+2. Testing and Debugging using Wireshark
+3. Implementation of sr_handlepacket function and handle_arp function in sr_router.c
+4. Overall improvement of the code
+5. Analysis and fix of bugs
 
 
 Known Bugs/Issues:
