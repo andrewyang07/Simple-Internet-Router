@@ -333,6 +333,7 @@ void sr_forwarding (struct sr_instance *sr, uint8_t *packet,
       if (dst_entry==NULL) {
         sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache,
           ip_hdr->ip_dst, packet, len, iface_found->name);
+        handle_arpreq(sr,new_req);
         return;
       }
       else

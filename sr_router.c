@@ -31,7 +31,29 @@
 /* See pseudo-code in sr_arpcache.h */
 void handle_arpreq(struct sr_instance* sr, struct sr_arpreq *req){
   /* TODO: Fill this in */
+  time_t now = time(NULL);
+  pthread_mutex_lock(&sr->cache.lock);
 
+  if(difftime(now,req->sent) > 1.0) {
+
+    if(req->times_sent >= 5) {
+      printf("\nTimes sent exceed >= 5, dropping ARP request");
+      struct sr_packet *temp = req->packets;
+      while(temp != NULL) {
+        sr_send_icmp_t3(sr, icmp_type_dest_unreach,
+        icmp_code_host_unreach, temp->buf, sr_get_interface(sr,temp->iface));
+        temp = temp->next;
+      }
+      sr_arpreq_destroy(&sr->cache,req);
+    }
+    else {
+      /* printf("\nneed to implement resending ARP reqeust here"); */
+      sr_send_request(sr, req->ip);
+      req->sent = time(NULL);
+      req->times_sent++;
+    }
+  }
+  pthread_mutex_unlock(&sr->cache.lock);
 }
 
 /*---------------------------------------------------------------------
@@ -181,18 +203,7 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
     /* send ICM type 3 message here */
     return;
   }
-
-  sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_header->ip_dst);
-  if (dst_entry==NULL) {
-    sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_header->ip_dst, packet, len, iface->name);
-  }
-  else
-  {
-    sr_if_t* dst_iface=find_dst_if(sr, ip_header->ip_dst);
-    sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
-    printf("Sending successfully\n");
-  }
-
+  sr_forwarding (sr, packet, len, iface);
 }
 
 
@@ -225,17 +236,7 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
     return;
   }
   /* we'll forward packet here, Use the interface we found */
-  sr_arpentry_t* dst_entry = sr_arpcache_lookup(&sr->cache, ip_hdr->ip_dst);
-  if (dst_entry==NULL) {
-    sr_arpreq_t* new_req = sr_arpcache_queuereq(&sr->cache, ip_hdr->ip_dst, packet, len, iface->name);
-  }
-  else
-  {
-    sr_ip_hdr_t *ip_hdr = get_ip_hdr(packet);
-    sr_if_t* dst_iface=find_dst_if(sr, ip_hdr->ip_dst);
-    sr_forward_packet(sr, packet, len, dst_iface, dst_entry->mac);
-    printf("Sending successfully\n");
-  }
+  sr_forwarding (sr, packet, len, iface);
 }
 
 
