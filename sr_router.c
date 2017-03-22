@@ -178,6 +178,12 @@ void sr_handlepacket(struct sr_instance* sr,
           handle_ICMP(sr, e_hdr, len, iface);
           break;
         /*----------------------------------------------------------------------*/
+        case ip_protocol_tcp:
+          sr_send_icmp_t3(sr, icmp_type_dest_unreach,
+          icmp_code_port_unreach, packet, iface);
+        case ip_protocol_udp:
+          sr_send_icmp_t3(sr, icmp_type_dest_unreach,
+          icmp_code_port_unreach, packet, iface);
         default:
           printf("\nThis is a IP packet");
           handle_IP(sr, e_hdr, len, iface);
@@ -258,7 +264,7 @@ void handle_arp(struct sr_instance* sr, uint8_t *packet, unsigned int len,
         case arp_op_request:
           printf("\nThis ARP is correct! Processing...");
           /*firstly should check the arp cache using sr_arpcache_lookup
-          */          
+          */
           sr_send_reply(sr,e_hdr, a_hdr, iface);
           break;
         /* Handle ARP reply */
