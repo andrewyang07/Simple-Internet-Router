@@ -202,6 +202,8 @@ void handle_ICMP(struct sr_instance* sr, uint8_t *packet, unsigned int len, stru
   if(ip_hdr->ip_ttl == 0){
     printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
     /* send ICM type 3 message here */
+    sr_send_icmp_t3(sr, icmp_type_time_exceed,
+    icmp_code_ttl_expired, packet, iface);
     return;
   }
   sr_forwarding (sr, packet, len, iface);
@@ -233,7 +235,10 @@ void handle_IP(struct sr_instance* sr, uint8_t *packet, unsigned int len, struct
   ip_hdr->ip_ttl --;
   if(ip_hdr->ip_ttl == 0){
     printf("TTL is decremented to be 0, sending TTL expired ICMP\n");
+
     /* TODO: send ICM type 3 message here */
+    sr_send_icmp_t3(sr, icmp_type_time_exceed,
+    icmp_code_ttl_expired, packet, iface);
     return;
   }
   /* we'll forward packet here, Use the interface we found */
