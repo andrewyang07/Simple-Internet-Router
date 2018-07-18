@@ -10,8 +10,8 @@ Given a raw Ethernet frame, if the frame contains an IP packet that is not desti
 
     - Sanity-check the packet (meets minimum length and has correct checksum). You may simply drop the packet if either of these checks fails.
 
-void sr_handlepacket(struct sr_instance* sr, uint8_t * packet, unsigned int len, char* interface)
-This method, located in sr_router.c, is called by the router each time a packet is received. The "packet" argument points to the packet buffer which contains the full packet including the ethernet header. The name of the receiving interface is passed into the method as well.
+void sr_handlepacket(struct sr_instance* sr, uint8_t * packet, unsigned int len, char* interface) The router call the method, located in sr_router.c, to receive a packet. The “packet” argument points contains the full packet including the ethernet header. The name of the receiving interface is passed into the method.
+
 
 
 
